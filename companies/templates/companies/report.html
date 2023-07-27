@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="utf-8">
+    <title>ESG report summary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="">
+
+    <!--[if lt IE 9]>
+    <script src="../../../static/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <!-- CSS Files
+    ================================================== -->
+    <link rel="stylesheet" href="../../../static/css/bootstrap.min.css" type="text/css">
+	<link rel="stylesheet" href="../../../static/css/bootstrap-grid.min.css" type="text/css">
+	<link rel="stylesheet" href="../../../static/css/bootstrap-reboot.min.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/css/animate.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/css/owl.carousel.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/css/owl.theme.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/css/owl.transitions.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/css/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/css/jquery.countdown.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/css/style.css" type="text/css">
+    <link rel="stylesheet" href="../../../static/css/colors/red.css" type="text/css">
+
+    <!-- Styles -->
+    <style>
+    #chartdiv {
+      width: 100%;
+      height: 350px;
+    }
+    .table-container {
+        position: absolute;
+        left: 20%;
+        right: 20%;
+    }
+    .el-table .cell {
+        white-space: pre-line !important;
+    }
+    </style>
+
+    <style lang="less" scoped>
+    /deep/ .el-table th.el-table__cell > .cell {
+        white-space: pre;
+    }
+    </style>
+
+    <style>.link {  fill: none;  stroke: #666;  stroke-width: 1.5px;}#licensing {  fill: green;}.link.licensing {  stroke: green;}.link.resolved {  stroke-dasharray: 0,2 1;}circle {  fill: #ccc;  stroke: #333;  stroke-width: 1.5px;}text {  font: 12px Microsoft YaHei;  pointer-events: none;  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;}.linetext {    font-size: 12px;}</style>
+
+    <!--vue and element js-->
+    <!--NOTE: vue.js should be imported before element.js-->
+    <script src="../../../static/js/vue.js" type="text/javascript" charset="utf-8"></script>
+
+    <!--axios-->
+    <script src="../../../static/js/axios.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+
+<body>
+<div id="app">
+    <div id="wrapper">
+        <div class="page-overlay">
+            <div class="preloader-wrap">
+                <div class="spinner">
+                    <div class="bounce1"></div>
+                    <div class="bounce2"></div>
+                    <div class="bounce3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- header begin -->
+        <header style="background-color: #e3e9bc">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- logo begin -->
+                        <div id="logo">
+                            <a href="index.html">
+                                <img class="logo" width="100px" height="50px" src="../../../static/images/logo/companylogo.jpg">
+                                <img class="logo-2" width="100px" height="50px" src="../../../static/images/logo/companylogo.jpg">
+                            </a>
+                        </div>
+                        <!-- logo close -->
+
+                        <!-- small button begin -->
+                        <span id="menu-btn"></span>
+                        <!-- small button close -->
+
+                        <!-- mainmenu begin -->
+                        <nav>
+                            <ul id="mainmenu">
+                                <li><a href="index.html">Home</a></li>
+                                <li><a href="news.html">News</a></li>
+                                <li><a href="industry.html">Industry</a></li>
+                                <li><a href="https://epiphany-citi.my.canva.site/" target="_blank">Demo</a></li>
+                            </ul>
+                        </nav>
+                        <!-- mainmenu close -->
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- header close -->
+
+        <div id="content" class="no-bottom no-top">
+            <div id="top"></div>
+            <el-container style="padding-bottom: 0">
+                <!-- content begin -->
+                <el-aside width="50px"></el-aside>
+
+                <el-main width="600px">
+                    <div style="width: 550px">
+                        <!-- stock info begin -->
+                        <el-descriptions :column="2" style="font-size: 14px" title="企业信息" border>
+                            <el-descriptions-item>
+                                <template slot="label">
+                                    <div v-text="companyDetail.name.cn"></div>
+                                </template>
+                                <div style="width: 150px" v-text="companyDetail.name.value"></div>
+                            </el-descriptions-item>
+
+                            <el-descriptions-item>
+                                <template slot="label">
+                                    <div v-text="companyDetail.code.cn"></div>
+                                </template>
+                                <div style="width: 150px" v-text="companyDetail.code.value"></div>
+                            </el-descriptions-item>
+
+                            <el-descriptions-item>
+                                <template slot="label">交易所</template>
+                                <div v-if="company.market==='HKSE'">港交所</div>
+                                <div v-if="company.market==='SZSE'">深交所</div>
+                                <div v-if="company.market==='SSE'">上交所</div>
+                            </el-descriptions-item>
+
+                            <el-descriptions-item>
+                                <template slot="label">
+                                    <div v-text="companyDetail.establish_date.cn"></div>
+                                </template>
+                                <div style="width: 150px" v-text="companyDetail.establish_date.value"></div>
+                            </el-descriptions-item>
+
+                            <el-descriptions-item>
+                                <template slot="label">
+                                    <div v-text="companyDetail.ceo.cn"></div>
+                                </template>
+                                <div style="width: 150px" v-text="companyDetail.ceo.value"></div>
+                            </el-descriptions-item>
+
+                            <el-descriptions-item>
+                                <template slot="label">
+                                    <div v-text="companyDetail.accounting_date.cn"></div>
+                                </template>
+                                <div style="width: 150px" v-text="companyDetail.accounting_date.value"></div>
+                            </el-descriptions-item>
+
+                            <el-descriptions-item>
+                                <template slot="label">
+                                    <div v-text="companyDetail.total_employees.cn"></div>
+                                </template>
+                                <div style="width: 150px" v-text="companyDetail.total_employees.value"></div>
+                            </el-descriptions-item>
+
+                            <el-descriptions-item>
+                                <template slot="label">
+                                    <div v-text="companyDetail.website.cn"></div>
+                                </template>
+                                <div style="width: 150px">
+                                    <a v-text="companyDetail.website.value" :href="companyDetail.website.value" target="_blank"></a>
+                                </div>
+                            </el-descriptions-item>
+
+                            <el-descriptions-item>
+                                <template slot="label">
+                                    <div v-text="companyDetail.business.cn"></div>
+                                </template>
+                                <div style="width: 440px" v-text="companyDetail.business.value"></div>
+                            </el-descriptions-item>
+                        </el-descriptions>
+                        <br>
+                        <!-- stock info close -->
+                    </div>
+
+                    <div style="width: 520px">
+                        <!-- stock price chart -->
+                        <!-- HTML -->
+                        <h3 style="font-size: 16px">股价信息</h3>
+                        <div id="chartdiv"></div>
+                        <div>
+                            <a :href="stockPriceUrl" target="_blank">点击前往交易所网页查看更多详情</a>
+                        </div>
+                        <!-- stock price char end -->
+                    </div>
+                </el-main>
+
+                <el-main>
+                    <el-main>
+                        <div align="center"><h3 style="font-size: 16px">ESG评级</h3></div>
+                        <el-table
+                                :data="stockRatings"
+                                width="300">
+
+                            <el-table-column
+                                    prop="agency"
+                                    label="机构"
+                                    width="150px"
+                                    align="center">
+                            </el-table-column>
+
+                            <el-table-column
+                                    prop="score"
+                                    label="分数"
+                                    width="100px"
+                                    align="center">
+                            </el-table-column>
+
+                            <el-table-column
+                                    prop="level"
+                                    label="等级"
+                                    align="center">
+                            </el-table-column>
+
+                            <el-table-column
+                                    prop="date"
+                                    label="日期"
+                                    align="center">
+                            </el-table-column>
+
+                        </el-table>
+                    </el-main>
+
+                    <el-main>
+                        <!--expected esg score-->
+                        <div style="width: 200px; padding-top: 0; padding-bottom: 80px; padding-left: 20px">
+                            <el-descriptions border>
+                                <el-descriptions-item :label-style="{'background': '#E1F3D8', 'font-weight': 'bold'}" :content-style="{'font-weight': 'bold'}">
+                                    <template slot="label">
+                                        <div v-text="comprehensiveESG.desc"></div>
+                                    </template>
+                                    <div v-text="comprehensiveESG.score"></div>
+                                </el-descriptions-item>
+                            </el-descriptions>
+                        </div>
+                        <!--expected esg score end-->
+
+                        <!--word cloud-->
+                        <div v-loading="imgLoading" align="center">
+                            <img id="wordcloud" width="430px" height="250px">
+                        </div>
+                        <!--word cloud end-->
+
+                    </el-main>
+                </el-main>
+
+                <el-aside width="30px"></el-aside>
+
+            </el-container>
+        </div>
+
+        <el-container style="padding-top: 0; padding-bottom: 0">
+            <el-aside width="50px"></el-aside>
+
+            <el-main>
+                <div>
+                    <!-- description of stock info -->
+                    <el-descriptions title="股市信息" border>
+                        <el-descriptions-item>
+                            <template slot="label">现价</template>
+                            <div v-text="stockInfo.curr_price"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">成交额</template>
+                            <div v-text="stockInfo.volume_dollar"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">成交量</template>
+                            <div v-text="stockInfo.volume_no"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">总市值</template>
+                            <div v-text="stockInfo.market_value"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">市盈率 (PE TTM)</template>
+                            <div v-text="stockInfo.PE_TTM"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">市净率 (PB)</template>
+                            <div v-text="stockInfo.PB"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">基本每股收益（元）</template>
+                            <div v-text="stockInfo.eps"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">净资产收益率(ROE)</template>
+                            <div v-text="stockInfo.return_on_equity"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">总资产净利率(ROA)</template>
+                            <div v-text="stockInfo.return_on_asset"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">资产负债率</template>
+                            <div v-text="stockInfo.asset_liability_ratio"></div>
+                        </el-descriptions-item>
+
+                        <el-descriptions-item>
+                            <template slot="label">流动比率</template>
+                            <div v-text="stockInfo.liquid_ratio"></div>
+                        </el-descriptions-item>
+                    </el-descriptions>
+                    <!-- description of stock info end -->
+                </div>
+
+                <br><br>
+
+                <!--data visualization-->
+                <el-container style="padding-top: 0; padding-bottom: 0">
+
+                    <el-aside width="60%">
+                        <h3 style="font-size: 16px">数据分析</h3>
+                        <el-table :data="tableData" style="width: 100%">
+                            <el-table-column prop="area" label="数据所处领域" align ="left" width="110px"></el-table-column>
+
+                            <el-table-column prop="category" label="数据分类" align ="left"></el-table-column>
+
+                            <el-table-column prop="fy2022" label="FY2022得分" align ="center">
+                                <template slot-scope="scope">
+                                    <div :style="getCellStyle(scope.row.fy2022)" v-text="scope.row.fy2022"></div>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="fy2021" label="FY2021得分" align ="center">
+                                <template slot-scope="scope">
+                                    <div :style="getCellStyle(scope.row.fy2021)" v-text="scope.row.fy2021"></div>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="yearlyChange" label="年同比变动" align ="center" width="90px">
+                                <template slot-scope="scope">
+                                    <div :style="getValueStyle(scope.row.yearlyChange)" v-text="scope.row.yearlyChange"></div>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="weight" label="评分权重" align ="center"></el-table-column>
+
+                            <el-table-column prop="attr" label="归因" align ="center"></el-table-column>
+
+                            <el-table-column prop="attribution" label="评分类型" align ="center"></el-table-column>
+                        </el-table>
+                    </el-aside>
+
+                    <el-aside width="40%">
+                        <div id="container" style="padding-top: 60px; width: 410px; height: 400px"></div>
+                    </el-aside>
+
+                </el-container>
+                <!--data visualization end-->
+
+            </el-main>
+
+            <el-aside width="50px"></el-aside>
+        </el-container>
+
+
+        <el-container style="padding-top: 0; padding-bottom: 0">
+            <el-aside width="50px"></el-aside>
+
+            <el-main>
+
+                <el-container>
+
+                    <el-aside width="44%">
+                        <h3 font-size="16px">公司排名</h3>
+                        <el-table :data="tableData2" style="width: 100%">
+                            <el-table-column prop="companyRanking" label="公司排名相较于" align ="left" width="120px"></el-table-column>
+
+                            <el-table-column prop="refinitivESG" :label="'refinitive ESG总体'" align ="center" width="90px">
+                                <template slot-scope="scope">
+                                    <div :style="getCellStyle2(scope.row.refinitivESG)" v-text="scope.row.refinitivESG"></div>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="beverage" label="饮料" align="center" width="70px"></el-table-column>
+
+                            <el-table-column prop="hk" label="香港" align ="center"></el-table-column>
+
+                            <el-table-column prop="beverageHK" label="饮料/香港" align ="center">
+                                <template slot-scope="scope">
+                                    <div :style="getValueStyle2(scope.row.beverageHK)" v-text="scope.row.beverageHK"></div>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-aside>
+
+                    <el-aside width="5%"></el-aside>
+
+                    <el-aside width="46%">
+                        <h3 font-size="16px">财务数据及ESG等级</h3>
+                        <el-table :data="tableData3" style="width: 100%">
+                            <el-table-column prop="area" label="" align ="left" width="105px"></el-table-column>
+
+                            <el-table-column prop="y1" label="FY2022" align ="center">
+                                <template slot-scope="scope">
+                                    <div :style="getStyle(scope.row.y1)" v-text="scope.row.y1"></div>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="y2" label="FY2021" align="center">
+                                <template slot-scope="scope">
+                                    <div :style="getStyle(scope.row.y2)" v-text="scope.row.y2"></div>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="y3" label="FY2020" align ="center">
+                                <template slot-scope="scope">
+                                    <div :style="getStyle(scope.row.y3)" v-text="scope.row.y3"></div>
+                                </template>
+                            </el-table-column>
+
+                            <el-table-column prop="y4" label="FY2019" align ="center">
+                                <template slot-scope="scope">
+                                    <div :style="getStyle(scope.row.y4)" v-text="scope.row.y4"></div>
+                                </template>
+                                <!-- <template slot-scope="scope">
+                                    <div :style="getValueStyle3(scope.row.FY2020)">
+                                        {{ scope.row.FY2020}}
+                                    </div>
+                                </template> -->
+                            </el-table-column>
+                        </el-table>
+                    </el-aside>
+
+                </el-container>
+
+            </el-main>
+
+            <el-aside width="50px"></el-aside>
+        </el-container>
+
+
+        <el-container style="padding-top: 0">
+            <el-aside width="50px"></el-aside>
+
+            <el-aside width="500px">
+                <!-- company notice list -->
+                <h3 align="center" style="font-size: 16px">企业公告</h3>
+                <el-table
+                        :data="companyNotice"
+                        height="400">
+                    <el-table-column
+                            prop="title"
+                            width="250px"
+                            label="标题 (点击查看)"
+                            align="center">
+                        <template slot-scope="scope">
+                            <a :href="(scope.row.url)" target="_blank" v-text="(scope.row.title)"></a>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column
+                            prop="description"
+                            label="描述"
+                            align="center">
+                    </el-table-column>
+
+                    <el-table-column
+                            prop="date"
+                            label="日期"
+                            align="center">
+                    </el-table-column>
+                </el-table>
+                <!-- company notice list close -->
+            </el-aside>
+
+            <el-aside width="70px"></el-aside>
+
+            <el-aside width="500px">
+                <!-- company news -->
+                <h3 align="center" style="font-size: 16px">企业新闻</h3>
+                <el-table
+                        :data="companyNews"
+                        height="400">
+                    <el-table-column
+                            prop="title"
+                            width="240px"
+                            label="标题 (点击查看)"
+                            align="center">
+                        <template slot-scope="scope">
+                            <a :href="(scope.row.url)" target="_blank" v-text="(scope.row.title)"></a>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column
+                            prop="impact"
+                            label="影响"
+                            align="center">
+                    </el-table-column>
+
+                    <el-table-column
+                            prop="score"
+                            label="分数"
+                            align="center">
+                    </el-table-column>
+
+                    <el-table-column
+                            prop="date"
+                            label="日期"
+                            align="center">
+                    </el-table-column>
+                </el-table>
+                <!-- company news end -->
+
+                <div style="padding-top: 10px">
+                    <a :href="'https://www.qcc.com/web/search/newsnotice?key='+company.name" target="_blank">点击查看更多</a>
+                </div>
+            </el-aside>
+
+            <el-aside width="50px"></el-aside>
+
+        </el-container>
+
+
+        <el-container style="padding: 0">
+            <el-aside width="50px"></el-aside>
+
+            <el-main>
+                <div>
+                    <h3 align="center">知识图谱</h3>
+
+                    <div align="center">
+                        <a :href=`knowledge_graph.html?name=${company.name}&code=${company.code}&market=${company.market}` target="_blank">click for details</a>
+                    </div>
+                </div>
+
+                <div align="center" style="padding-top: 40px; padding-bottom: 40px">
+                    <el-button @click="generateReport" :loading="generateLoading" icon="el-icon-download" type="success" size="large">Summary Report</el-button>
+                </div>
+
+                <el-divider style="border-bottom: black"></el-divider>
+
+                <div align="center">
+                    <h3 style="padding-bottom: 20px; padding-top: 40px" align="center">ESG融资框架</h3>
+
+                    <!--use of proceed-->
+                    <div style="width: 900px">
+                        <h3 style="font-size: 16px" align="left">融资款项用途</h3>
+
+                        <div align="right">
+                            <el-button size="small" type="primary" icon="el-icon-plus" @click="addUseVisible=true"></el-button>
+                        </div>
+
+                        <div>
+                            <el-table
+                                    :data="useOfProceed"
+                                    height="400">
+<!--                                    :header-cell-style="{'text-align': 'center'}">-->
+<!--                                    :cell-style="{'text-align': 'center'}">-->
+                                <el-table-column
+                                        label="融资用于"
+                                        prop="category">
+                                </el-table-column>
+
+                                <el-table-column
+                                        label="其他标注"
+                                        prop="eligibility">
+                                </el-table-column>
+
+                                <el-table-column
+                                        label="合规化分析"
+                                        prop="objective">
+                                </el-table-column>
+
+                                <el-table-column
+                                        label="操作 (删除请慎重)"
+                                        width="180px">
+                                    <template slot-scope="scope">
+                                        <el-button :loading="downloadLoading" @click="downloadUOP(scope.row)" type="success" size="small" icon="el-icon-download"></el-button>
+                                        <el-button size="small" icon="el-icon-refresh" @click="openUpdateVisible(scope.row)" type="info"></el-button>
+                                        <el-button size="small" icon="el-icon-delete" @click="deleteUse(scope.row)" type="danger"></el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+
+                            <el-dialog
+                                    :visible.sync="updateVisible"
+                                    width="60%"
+                                    :before-close="handleUpdateClose">
+
+                                <el-descriptions :label-style="{'width': '80px'}" :column="2" style="font-size: 14px" title="修改该条资金用途" border>
+                                    <el-descriptions-item>
+                                        <template slot="label">融资用于</template>
+                                        <div>
+                                            <el-input v-model="updateUse.category"></el-input>
+                                        </div>
+                                    </el-descriptions-item>
+
+                                    <el-descriptions-item>
+                                        <template slot="label">
+                                            <div>其他标注</div>
+                                        </template>
+                                        <div>
+                                            <el-input
+                                                    maxlength="900"
+                                                    show-word-limit
+                                                    type="textarea"
+                                                    :row="1"
+                                                    v-model="updateUse.eligibility">
+                                            </el-input>
+                                        </div>
+                                    </el-descriptions-item>
+
+                                    <el-descriptions-item>
+                                        <template slot="label">
+                                            <div>合规化分析</div>
+                                        </template>
+                                        <div>
+                                            <el-input
+                                                    maxlength="1900"
+                                                    show-word-limit
+                                                    type="textarea"
+                                                    :rows="4"
+                                                    v-model="updateUse.objective">
+                                            </el-input>
+                                        </div>
+                                    </el-descriptions-item>
+                                </el-descriptions>
+
+                                <span slot="footer" class="dialog-footer">
+                                    <el-button @click="updateVisible=false">取消</el-button>
+                                    <el-button type="primary" @click="updateUseProceed">提交</el-button>
+                                </span>
+                            </el-dialog>
+
+
+                            <div>
+                                <div style="padding-bottom: 10px">
+                                    <el-dialog
+                                            title="提示"
+                                            :visible.sync="addUseVisible"
+                                            width="70%"
+                                            :before-close="handleAddUseClose">
+
+                                        <el-descriptions :label-style="{'width': '80px'}" :column="1" style="font-size: 14px" title="新增款项用途" border>
+                                            <el-descriptions-item>
+                                                <template slot="label">融资用于</template>
+                                                <div>
+                                                    <el-input v-model="use.category"></el-input>
+                                                </div>
+                                            </el-descriptions-item>
+
+                                            <el-descriptions-item>
+                                                <template slot="label">
+                                                    <div>其他标注</div>
+                                                </template>
+                                                <div>
+                                                    <el-input
+                                                            type="textarea"
+                                                            :rows="2"
+                                                            maxlength="900"
+                                                            show-word-limit
+                                                            v-model="use.eligibility">
+                                                    </el-input>
+                                                </div>
+                                            </el-descriptions-item>
+
+                                            <el-descriptions-item>
+                                                <template slot="label">
+                                                    <div>合规化分析</div>
+                                                </template>
+                                                <div>
+                                                    <el-input
+                                                            maxlength="1900"
+                                                            show-word-limit
+                                                            type="textarea"
+                                                            :rows="4"
+                                                            v-model="use.objective">
+                                                    </el-input>
+                                                </div>
+                                            </el-descriptions-item>
+                                        </el-descriptions>
+
+                                        <span slot="footer" class="dialog-footer">
+                                            <el-button @click="addUseVisible=false">取消</el-button>
+                                            <el-button type="primary" @click="addUse">添加</el-button>
+                                        </span>
+                                    </el-dialog>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--financing suggestion-->
+                        <div style="width: 900px; padding-bottom: 50px">
+                            <el-descriptions :label-style="{'width': '140px'}" :column="1" style="font-size: 14px" title="融资实践建议" border>
+                                <el-descriptions-item>
+                                    <template slot="label">建议融资产品</template>
+                                    <el-select style="width: 100%" v-model="suggestion.product" filterable placeholder="请选择">
+                                        <el-option
+                                                v-for="item in financingOptions"
+                                                :key="item.value"
+                                                :label="item.label"
+                                                :value="item.value">
+                                        </el-option>
+                                    </el-select>
+<!--                                    <div v-text="suggestion.product"></div>-->
+                                </el-descriptions-item>
+
+                                <el-descriptions-item>
+                                    <template slot="label">
+                                        <div>融资数额(￥)</div>
+                                    </template>
+                                    <el-input v-model="suggestion.amount"></el-input>
+                                </el-descriptions-item>
+
+                                <el-descriptions-item>
+                                    <template slot="label">
+                                        <div>融资利率(%)</div>
+                                    </template>
+                                    <el-input v-model="suggestion.rate">
+    <!--                                    <template slot="append">%</template>-->
+                                    </el-input>
+                                </el-descriptions-item>
+
+                                <el-descriptions-item>
+                                    <template slot="label">
+                                        <div>融资年限(年)</div>
+                                    </template>
+                                   <el-input v-model="suggestion.duration">
+<!--                                       <template slot="append">年</template>-->
+                                   </el-input>
+                                </el-descriptions-item>
+                            </el-descriptions>
+                        </div>
+                        <!--financing suggestion end-->
+
+                        <div>
+                            <el-checkbox :indeterminate="isFinIndeterminate" v-model="checkFinAll" @change="handleFinAllChange">全部符合</el-checkbox>
+                            <div style="margin: 15px 0;"></div>
+                            <div align="left">
+                                <el-checkbox-group v-model="checkedFin" @change="handleCheckedFinChange">
+                                <el-checkbox v-for="fin in fins" :label="fin" :key="fin"><div v-text="fin"></div></el-checkbox>
+                            </el-checkbox-group>
+                            </div>
+                        </div>
+                    </div>
+                    <!--use of proceed end-->
+                </div>
+
+            </el-main>
+
+            <el-aside width="50px"></el-aside>
+        </el-container>
+
+
+        <el-container align="center">
+            <el-aside width="100px"></el-aside>
+
+            <el-main>
+                <!-- crawler source -->
+                <h4 align="center" style="font-size: 12px">以上数据爬取自:
+                    <a href="https://www.hkex.com.hk/?sc_lang=zh-HK" target="_blank">香港交易所</a>/
+                    <a href="https://www.hkexnews.hk/index_c.htm" target="_blank">披露易</a>/
+                    <a href="http://www.szse.cn/" target="_blank">深圳证券交易所</a>/
+                    <a href="http://www.sse.com.cn/" target="_blank">上海证券交易所</a>/
+                    <a href="http://www.cninfo.com.cn/new/index" target="_blank">巨潮资讯网</a>/
+                    <a href="https://finance.sina.com.cn/esg/" target="_blank">新浪财经</a>/
+                    <a href="https://www.futunn.com/?lang=zh-CN" target="_blank">富途牛牛</a>
+                </h4>
+                <!-- crawler source end -->
+            </el-main>
+
+            <el-aside width="100px"></el-aside>
+        </el-container>
+
+    </div>
+
+    <!-- content close -->
+
+    <a href="#" id="back-to-top"></a>
+
+    <div id="preloader">
+        <div class="preloader1"></div>
+    </div>
+
+</div>
+
+
+<!-- Resources -->
+<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+
+<script src="https://unpkg.com/vue@2/dist/vue.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<script src="../../../static/js/echarts.min.js"></script>
+
+<script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+
+<script>
+    /* Chart code */
+    am5.ready(function() {
+        // Create root element
+        // https://www.amcharts.com/docs/v5/getting-started/#Root_element
+
+        var root = am5.Root.new("chartdiv");
+
+        // Set themes
+        // https://www.amcharts.com/docs/v5/concepts/themes/
+        root.setThemes([
+            am5themes_Animated.new(root)
+        ]);
+
+        root.dateFormatter.setAll({
+            dateFormat: "yyyy",
+            dateFields: ["valueX"]
+        });
+
+        var company = JSON.parse('{{company|safe}}');
+        var url = `/companies/report/stockprice/${company.code}/${company.market}/d/730/`;
+        var xhr = _xhr("GET", url);
+        var data = JSON.parse(xhr.responseText).data;
+
+        // Create chart
+        // https://www.amcharts.com/docs/v5/charts/xy-chart/
+        var chart = root.container.children.push(am5xy.XYChart.new(root, {
+            focusable: true,
+            panX: true,
+            panY: true,
+            wheelX: "panX",
+            wheelY: "zoomX",
+            pinchZoomX:true
+        }));
+
+        var easing = am5.ease.linear;
+
+        // Create axes
+        // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
+        var xAxis = chart.xAxes.push(am5xy.DateAxis.new(root, {
+            maxDeviation: 0.1,
+            groupData: false,
+            baseInterval: {
+                timeUnit: "day",
+                count: 1
+            },
+            renderer: am5xy.AxisRendererX.new(root, {
+            }),
+            tooltip: am5.Tooltip.new(root, {})
+        }));
+
+        var yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
+            maxDeviation: 0.2,
+            renderer: am5xy.AxisRendererY.new(root, {})
+        }));
+
+        // Add series
+        // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
+        var series = chart.series.push(am5xy.LineSeries.new(root, {
+            minBulletDistance: 10,
+            connect: false,
+            xAxis: xAxis,
+            yAxis: yAxis,
+            valueYField: "value",
+            valueXField: "date",
+            tooltip: am5.Tooltip.new(root, {
+                pointerOrientation: "horizontal",
+                labelText: "{valueY}"
+            })
+        }));
+
+        series.fills.template.setAll({
+            fillOpacity: 0.2,
+            visible: true
+        });
+
+        series.strokes.template.setAll({
+            strokeWidth: 2
+        });
+
+
+        // Set up data processor to parse string dates
+        // https://www.amcharts.com/docs/v5/concepts/data/#Pre_processing_data
+        series.data.processor = am5.DataProcessor.new(root, {
+            dateFormat: "yyyy-MM-dd",
+            dateFields: ["date"]
+        });
+
+        series.data.setAll(data);
+
+        series.bullets.push(function() {
+            var circle = am5.Circle.new(root, {
+                radius: 4,
+                fill: root.interfaceColors.get("background"),
+                stroke: series.get("fill"),
+                strokeWidth: 2
+            })
+
+            return am5.Bullet.new(root, {
+                sprite: circle
+            })
+        });
+
+
+        // Add cursor
+        // https://www.amcharts.com/docs/v5/charts/xy-chart/cursor/
+        var cursor = chart.set("cursor", am5xy.XYCursor.new(root, {
+            xAxis: xAxis,
+            behavior: "none"
+        }));
+        cursor.lineY.set("visible", false);
+
+        // add scrollbar
+        chart.set("scrollbarX", am5.Scrollbar.new(root, {
+            orientation: "horizontal"
+        }));
+
+        // Make stuff animate on load
+        // https://www.amcharts.com/docs/v5/concepts/animations/
+        chart.appear(1000, 100);
+    }); // end am5.ready()
+</script>
+
+<!-- Javascript Files
+================================================== -->
+<script src="../../../static/js/jquery.min.js"></script>
+<script src="../../../static/js/bootstrap.min.js"></script>
+<script src="../../../static/js/jquery.isotope.min.js"></script>
+<script src="../../../static/js/easing.js"></script>
+<script src="../../../static/js/owl.carousel.js"></script>
+<script src="../../../static/js/jquery.countTo.js"></script>
+<script src="../../../static/js/wow.min.js"></script>
+<script src="../../../static/js/jquery.magnific-popup.min.js"></script>
+<script src="../../../static/js/enquire.min.js"></script>
+<script src="../../../static/js/jquery.stellar.min.js"></script>
+<script src="../../../static/js/jquery.plugin.js"></script>
+<script src="../../../static/js/jquery.easeScroll.js"></script>
+<script src="../../../static/js/designesia.js"></script>
+<script src="../../../static/js/validation.js"></script>
+
+</body>
+
+<script src="../../../static/js/config/encap.js"></script>
+
+<script>
+    const finOptions = [
+        "是否不属于花旗可持续发展声明和政策立场中规定的排除条款",
+        "是否作为专用融资",
+        "该公司90%的收入是否来自本框架下定义为可持续发展的活动",
+        "是否与可持续发展相关的产品",
+        "融资目的是否专门用于任何绿色和/或社会标准，并避免其他任何活动",
+        "环境与社会尽职调查 (ES DD) 是否以成功通过",
+    ];
+    /* vue code */
+    const vue = new Vue({
+        el: "#app",
+        data() {
+            return {
+                tableData: [
+                    { area: '汇总条目', category: 'ESG评分', fy2022: 67.18, fy2021: 67.77, yearlyChange: -0.59, weight: '100.0%', attr: -0.6, attribution: '详细归因' },
+                    { area: '环境', category: '资源使用', fy2022: 85.00, fy2021: 83.49, yearlyChange: 1.51, weight: '13.2%', attr: 0.2, attribution: '详细归因' },
+                    { area: '环境', category: '排放', fy2022: 46.05, fy2021: 50.90, yearlyChange: -4.85, weight: '12.4%', attr: -0.6, attribution: '详细归因' },
+                    { area: '环境', category: '环境创新', fy2022: 0.00, fy2021: 0.00, yearlyChange: 0.00, weight: '4.1%', attr: 0.0, attribution: '详细归因' },
+                    { area: '社会责任', category: '全体员工', fy2022: 66.24, fy2021: 76.75, yearlyChange: -10.51, weight: '10.3%', attr: -1.1, attribution: '详细归因' },
+                    { area: '社会责任', category: '人权', fy2022: 63.83, fy2021: 64.04, yearlyChange: -0.21, weight: '14.9%', attr: 0.0, attribution: '详细归因' },
+                    { area: '社会责任', category: '社区', fy2022: 75.64, fy2021: 78.51, yearlyChange: -2.87, weight: '8.3%', attr: -0.2, attribution: '详细归因' },
+                    { area: '社会责任', category: '产品责任', fy2022: 88.61, fy2021: 87.38, yearlyChange: -0.77, weight: '12.1%', attr: -0.1, attribution: '详细归因' },
+                    { area: '治理', category: '管理层', fy2022: 62.77, fy2021: 51.09, yearlyChange: 11.68, weight: '16.5%', attr: 1.9, attribution: '详细归因' },
+                    { area: '治理', category: '股东', fy2022: 86.17, fy2021: 92.39, yearlyChange: -6.22, weight: '5.0%', attr: -0.3, attribution: '详细归因' },
+                    { area: '治理', category: 'CSR策略', fy2022: 78.33, fy2021: 89.29, yearlyChange: -10.96, weight: '3.3%', attr: -0.4, attribution: '详细归因' }
+                ],
+                tableData2: [
+                    { companyRanking: "公司数量", refinitivESG: 11516, beverage: 108, hk: 169, beverageHK: 5 },
+                    { companyRanking: "ESG综合评分", refinitivESG: 1785, beverage: 21, hk: 40, beverageHK: 2 },
+                    { companyRanking: "\xa0 \xa0 \xa0ESG评分", refinitivESG: 2154, beverage: 28, hk: 41, beverageHK: 2 },
+                    { companyRanking: "\xa0 \xa0 \xa0环境部分", refinitivESG: 3246, beverage: 45, hk: 98, beverageHK: 3 },
+                    { companyRanking: "\xa0 \xa0 \xa0社会部分", refinitivESG: 2047, beverage: 19, hk: 39, beverageHK: 2 },
+                    { companyRanking: "\xa0 \xa0 \xa0治理部分", refinitivESG: 3017, beverage: 34, hk: 39, beverageHK: 3 },
+                    { companyRanking: "ESG争议", refinitivESG: 1, beverage: 1, hk: 1, beverageHK: 1 }
+                ],
+                tableData3: [
+                    { area:"期间结束日",y1:'2022-12-31',y2:'2021-12-31',y3:'2020-12-31',y4:'2019-12-31'},
+                    { area:"历史市值(百万美元)",y1:'$41,704',y2:'$34,740',y3:'$43,733',y4:'$44,711'},
+                    { area:"营业总收入(百万美元)",y1:'$6,478',y2:'$6,788',y3:'$5,588',y4:'$6,546'},
+                    { area:"ESG综合评分",y1:'B+',y2:'B+',y3:'B',y4:'B-'},
+                    { area:"\xa0\xa0\xa0ESG评分",y1:'B+',y2:'B+',y3:'B',y4:'B-'},
+                    { area:"\xa0\xa0\xa0环境支柱",y1:'B-',y2:'B-',y3:'B-',y4:'C'},
+                    { area:"\xa0\xa0\xa0社会层面",y1:'B+',y2:'A-',y3:'B+',y4:'B-'},
+                    { area:"\xa0\xa0\xa0治理层面",y1:'B+',y2:'B',y3:'B',y4:'B+'},
+                    { area:"ESG争议",y1:'A+',y2:'A+',y3:'A+',y4:'A+'},
+                ],
+                company: {},
+                companyDetail: {},
+                stockRatings: [],
+                companyNotice: [],
+                companyNews: [],
+                stockPriceData: [],
+                stockPriceUrl: "",
+                stockInfo: {},
+                msciData: [],
+                industry: "",
+                imgPath: "",
+                imgLoading: true,
+                comprehensiveESG: {
+                    desc: "综合评分",
+                    score: "",
+                },
+                useOfProceed: [],
+                use: {category: "", eligibility: "", objective: ""},
+                suggestion: {
+                    product: "",
+                    amount: "",
+                    duration: "",
+                    rate: ""
+                },
+                updateUse: {
+                    id: "", code: "", category: "", eligibility: "", objective: "",
+                },
+                updateVisible: false,
+                addUseVisible: false,
+                financingOptions: [
+                    {"value": "green_bond", "label": "绿色债券"},
+                    {"value": "social_responsibility_bond", "label": "社会责任债券"},
+                    {"value": "sustainable_bond", "label": "可持续发展债券"},
+                    {"value": "sustainable_linked_bond", "label": "可持续发展挂钩债券"}
+                ],
+                checkFinAll: false,
+                checkedFin: [],
+                fins: finOptions,
+                isFinIndeterminate: true,
+                generateLoading: false,
+                downloadLoading: false,
+            }
+        },
+        methods: {
+            handleFinAllChange(val) {
+                console.log(val);
+                this.checkedFin = val ? finOptions : [];
+                this.isFinIndeterminate = false;
+            },
+            handleCheckedFinChange(value) {
+                let checkedCount = value.length;
+                this.checkFinAll = checkedCount === this.fins.length;
+                this.isIndeterminate = checkedCount > 0 && checkedCount < this.fins.length;
+            },
+            getEchart() {
+                // 基于准备好的 DOM，初始化 ECharts 图表
+                var myChart = echarts.init(document.getElementById("container"));
+                // 指定图表的配置项和数据
+                var option = {
+                    //这里调整背景颜色，目前是浅蓝色，我把透明度调到最高了
+                    backgroundColor: 'rgba(204,204,204,0.0)',
+                    title: {
+                        text: 'ESG综合评价',
+                        target: 'blank',
+                        top: '10',
+                        left: '150',
+                        textStyle: {
+                            color: '#258E2C',
+                            fontSize: 18,
+                            textBorderWidth: 5,
+                            textBorderColor: '#E7FAE8'
+                        }
+                    },
+                    legend: {
+                        show: true,
+                        icon: 'rect',
+                        top: '14',
+                        left: 300,
+                        itemWidth: 10,
+                        itemHeight: 10,
+                        itemGap: 30,
+                        orient: 'horizontal',
+                        textStyle: { fontSize: 15, color: '#fff' },
+                        data: [
+                            {
+                                name: 'fy2022',
+                                icon: 'rect',
+                                textStyle: { color: 'rgba(102,204,102,1)', fontWeight: 'bold' }
+                            },
+                            {
+                                name: 'fy2021',
+                                icon: 'rect',
+                                textStyle: { color: 'rgba(0,153,0,1)', fontWeight: 'bold' }
+                            }
+                        ],
+                    },
+                    tooltip: {
+                        confine: true,
+                        enterable: true,
+                    },
+                    radar: [
+                        {
+                            center: ['50%', '65% '],
+                            radius: 160,
+                            startAngle: 90,
+                            name: {
+                                formatter: '{value}',
+                                textStyle: { fontSize: 15, color: '#000' }
+                            },
+                            nameGap: 2,
+                            splitNumber: 2,
+                            axisLine: { lineStyle: { color: '#fff', width: 1, type: 'solid' } },
+                            splitLine: {
+                                lineStyle: {
+                                    color: 'grey',
+                                    width: 1,
+                                    type: 'dashed'
+                                }
+                            },
+
+                            splitArea: {
+                                show: true,
+                                areaStyle: {
+                                    color: 'transparent'
+                                }
+                            },
+                            indicator: [
+                                { name: 'E', max: 100 },
+                                { name: 'S', max: 100 },
+                                { name: 'G', max: 100 }
+                            ]
+                        }
+                    ],
+                    series: [
+                        {
+                            name: 'ESG综合评价',
+                            type: 'radar',
+                            symbol: 'triangle',
+                            itemStyle: {
+                                normal: { lineStyle: { width: 1 }, opacity: 0.2 },
+                                emphasis: { lineStyle: { width: 5 }, opacity: 1 }
+                            },
+                            //在这里修改表格数据，添加或减少数据
+                            data: [
+                                {
+                                    name: 'fy2022',
+                                    value: [43.68, 73.08, 75.76],
+                                    symbol: 'triangle',
+                                    symbolSize: 5,
+                                    itemStyle: {
+                                        normal: { borderColor: 'rgba(102,204,204,1)', borderWidth: 3 },
+                                        areaStyle: { color: 'rgba(102,204,204,0.3)' }
+                                    },
+                                    lineStyle: { normal: { color: 'rgba(102,204,204,1)', width: 2, opacity: 0.9 } }
+                                },
+                                {
+                                    name: 'fy2021',
+                                    value: [44.80, 76.67, 77.59],
+                                    symbol: 'circle',
+                                    symbolSize: 5,
+                                    itemStyle: { normal: { borderColor: 'rgba(0,153,0,1)', borderWidth: 3 } },
+                                    lineStyle: { normal: { color: 'rgba(0,153,0,1)', width: 2, opacity: 0.9 } }
+                                }
+                            ]
+                        }
+                    ]
+                };
+                // 使用刚指定的配置项和数据显示图表
+                myChart.setOption(option);
+            },
+            getCompany() {
+                this.company = JSON.parse('{{company|safe}}');
+                if (this.company !== null) {
+                    this.$message.success("company " + this.company.name + " found");
+                } else {
+                    this.$message.danger("company not found");
+                }
+            },
+            getStockRatings() {
+                url = "/companies/report/rating/";
+                _axios("post", url, this.company).then((res) => {
+                    let ratings = res.data.data.ratings;
+                    this.stockRatings = ratings.slice(0, ratings.length-1);
+                    this.comprehensiveESG.score = ratings[ratings.length-1].score;
+                })
+            },
+            getCompanyNotice() {
+                var code = this.company.code;
+                var market = this.company.market;
+                url = `/companies/report/notice/${code}/${market}/`;
+                _axios("get", url).then((res) => {
+                    this.companyNotice = res.data.data.list;
+                })
+            },
+            getCompanyNews() {
+                var url = "/companies/report/news/";
+                _axios("post", url, this.company).then((res) => {
+                    this.companyNews = res.data.data.enterprise.news;
+                })
+            },
+            generateStockPriceURL() {
+                var company = this.company;
+                if (company.market === "HKSE") {
+                    var count = 0;
+                    for (var i = 0; i < this.company.code.length; i++) {
+                        if (this.company.code[i] === '0') {
+                            count++;
+                        } else {
+                            break;
+                        }
+                    }
+                    var code = this.company.code.substring(count, this.company.code.length);
+                    this.stockPriceUrl = `https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities/Equities-Quote?sym=${code}&sc_lang=zh-hk`;
+                } else if (company.market === "SZSE") {
+                    this.stockPriceUrl = `http://www.szse.cn/market/trend/index.html?code=${company.code}`;
+                } else {
+                    this.stockPriceUrl = `http://www.sse.com.cn/home/search/?webswd=${company.code}`;
+                }
+            },
+            getStockInfo() {
+                var company = this.company;
+                var url = `/companies/report/stockinfo/${company.code}/${company.market}/`;
+                _axios("get", url).then((res) => {
+                   this.stockInfo = res.data.data.stock_info;
+                });
+            },
+            getCompanyDetail() {
+                var company = JSON.parse('{{company|safe}}');
+
+                var url = `/companies/details/${company.code}/${company.market}/`;
+                var resp = JSON.parse(_xhr("get", url).responseText);
+
+                if (resp.success) {
+                    this.companyDetail = resp.data;
+                    console.log(this.companyDetail);
+                } else {
+                    this.$message.warning(resp.msg);
+                }
+            },
+            getMsciData() {
+                var url = `/companies/report/score/sector/company/${this.company.code}/${this.company.market}/`;
+                _axios("get", url).then((res) => {
+                    if (res.data.code === 20000) {
+                        this.industry = res.data.data.industry;
+                        let data = res.data.data.detail;
+                        for (k in data) {
+                            const scores = [];
+                            console.log(data[k]);
+                            for (issue of data[k]) {
+                                for (k1 in issue) {
+                                    scores.push({"issue": k1, "score": issue[k1]});
+                                }
+                            }
+                            let color = k === "environment"? "green": (k === "social"? "blue": "red");
+                            this.msciData.push({"category": k, "scores": scores, "color": color});
+                        }
+                        console.log(this.msciData);
+                    } else {
+                        this.$message.info("cannot identify the industry the company belongs to");
+                    }
+                })
+            },
+            getCellStyle(value) {
+                if (value >= 70) {
+                    return {
+                        background: '#BCF7C4',
+                        color: 'black'
+                    }
+                } else if (value < 70) {
+                    return {
+                        background: '#FF9999',
+                        color: 'black'
+                    }
+                } else {
+                    return {}
+                }
+            },
+            getValueStyle(value) {
+                if (value >= 0) {
+                    return {
+                        background: '#FFF8DC',
+                        color: 'darkgreen'
+
+                    }
+                } else if (value < 0) {
+                    return {
+                        background: '#FFF8DC',
+                        color: 'red'
+                    }
+                } else {
+                    return {};
+                }
+            },
+            getCellStyle2(value) {
+                if (value <= 2500) {
+                    return {
+                        background: '#BCF7C4',
+                        color: 'black'
+                    }
+                } else if (value > 2500) {
+                    return {
+                        background: '#FF9999',
+                        color: 'black'
+                    }
+                } else {
+                    return {}
+                }
+            },
+            getValueStyle2(value) {
+                if (value <= 2) {
+                    return {
+                        background: '#FFF8DC',
+                        color: 'darkgreen'
+
+                    }
+                } else if (value > 2) {
+                    return {
+                        background: '#FFF8DC',
+                        color: 'red'
+                    }
+                } else {
+                    return {};
+                }
+            },
+            getStyle(value) {
+                if (value == 'A+') {
+                    return {
+                        background:'#246630',
+                        color:'white'
+                    };
+                } else if (value == 'A') {
+                    return {
+                        background: '',
+                        color:'white'
+                    };
+                } else if (value == 'A-') {
+                    return {
+                        background: '#459953',
+                        color:'white'
+                    };
+                } else if (value == 'B+') {
+                    return {
+                        background: '#5fa64b',
+                        color:'white'
+                    };
+                } else if (value == 'B') {
+                    return {
+                        background: '#7bb247',
+                        color:'white'
+                    };
+                } else if (value == 'B-') {
+                    return {
+                        background: '#90bd37',
+                        color:'white'
+                    };
+                } else if (value == 'C+') {
+                    return {
+                        background: '#b0c93c',
+                        color:'white'
+                    };
+                } else if (value == 'C') {
+                    return {
+                        background: '#bfb434',
+                        color:'white'
+                    };
+                } else if (value == 'C-') {
+                    return {
+                        background: '#cc9c33',
+                        color:'white'
+                    };
+                } else if (value == 'D') {
+                    return {
+                        background: '#bd5e39',
+                        color:'white'
+                    };
+                }else {
+                    return {
+                        color:'black'
+                    };
+                }
+            },
+            getValueStyle3(value) {
+                if (value == 1) {
+                    return {
+                        background: '#FFF8DC',
+                        color: 'darkgreen'
+
+                    }
+                } else if (value > 1) {
+                    return {
+                        background: '#FFF8DC',
+                        color: 'red'
+                    }
+                } else {
+                    return {};
+                }
+            },
+            getWordCloudPath() {
+                _axios("get", `/companies/wordcloud/${this.company.name}/`).then((res) => {
+                    this.imgPath = res.data.data;
+                    console.log(this.imgPath);
+                    document.getElementById("wordcloud").src = res.data.data;
+                    this.imgLoading = false;
+                })
+            },
+            getUse() {
+                _axios("get", `/companies/esgframework/useofproceed/r/${this.company.code}${this.company.market}/`).then((res) => {
+                    this.useOfProceed = res.data.data;
+                })
+            },
+            resetUse() {
+                this.use.category = "";
+                this.use.eligibility = "";
+                this.use.objective = "";
+            },
+            addUse() {
+                const use = {
+                    "category": this.use.category,
+                    "eligibility": this.use.eligibility,
+                    "objective": this.use.objective
+                };
+
+                if (use.category.trim() !== "" && use.eligibility.trim() !== "" && use.objective.trim() !== "") {
+                    _axios("post", `/companies/esgframework/useofproceed/c/${this.company.code}${this.company.market}/`, this.use).then((res) => {
+                        if (res.data.success) {
+                            this.$message.success(res.data.msg);
+                        } else {
+                            this.$message.error(res.data.msg);
+                        }
+                        console.log(res.data.data);
+                        this.suggestion = res.data.data;
+                        this.getUse();
+                        this.resetUse();
+                        this.addUseVisible = false;
+                    })
+                } else {
+                    this.$message.error("please complete the form")
+                }
+            },
+            deleteUse(row) {
+                _axios("get", `/companies/esgframework/useofproceed/d/${row.id}/`).then((res) => {
+                    this.getUse();
+                })
+            },
+            openUpdateVisible(row) {
+                this.updateUse.id = row.id;
+                this.updateUse.code = row.code;
+                this.updateUse.category = row.category;
+                this.updateUse.eligibility = row.eligibility;
+                this.updateUse.objective = row.objective;
+
+                this.updateVisible = true;
+            },
+            handleUpdateClose() {
+                this.updateVisible = false;
+            },
+            handleAddUseClose() {
+                this.addUseVisible = false;
+            },
+            updateUseProceed() {
+                _axios("post", `/companies/esgframework/useofproceed/u/${this.updateUse.id}/`, this.updateUse).then((res) => {
+                    this.getUse();
+                    this.updateVisible = false;
+                })
+            },
+            generateReport() {
+                this.generateLoading = true;
+                var _this =  this;
+                setTimeout(function() {
+                    _this.generateLoading = false;
+                    window.open("../../../static/pdf/青島啤酒股份.pdf", "_blank");
+                }, 3000);
+            },
+            downloadLoadingHelper(root) {
+                this.downloadLoading = true;
+                var _this = this;
+                setTimeout(function() {
+                    _this.downloadLoading = false;
+                    window.open(root, "_blank");
+                }, 4000);
+            },
+            downloadUOP(row) {
+                let category = row.category;
+                let root;
+                if (category.startsWith("针对解决水污染")) {
+                    root = "../../../static/pdf/青島啤酒股份.pdf";
+                } else if (category.startsWith("")) {
+                    root = "../../../static/pdf/青島啤酒股份.pdf";
+                } else {
+                    return;
+                }
+
+                this.downloadLoadingHelper(root);
+            }
+        },
+        mounted() {
+            this.getCompany();
+            this.getStockRatings();
+            this.getCompanyNotice();
+            this.generateStockPriceURL();
+            this.getStockInfo();
+            this.getCompanyNews();
+            this.getMsciData();
+            this.getEchart();
+            this.getWordCloudPath();
+            this.getUse();
+        },
+        created() {
+            this.getCompanyDetail();
+        }
+    })
+</script>
+
+</html>

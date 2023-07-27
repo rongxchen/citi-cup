@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+
+<html lang="zxx">
+<head>
+    <title>Knowledge Graph</title>
+    <meta charset="utf-8">
+    <style>.link {  fill: none;  stroke: #666;  stroke-width: 1.5px;}#licensing {  fill: green;}.link.licensing {  stroke: green;}.link.resolved {  stroke-dasharray: 0,2 1;}circle {  fill: #ccc;  stroke: #333;  stroke-width: 1.5px;}text {  font: 12px Microsoft YaHei;  pointer-events: none;  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;}.linetext {    font-size: 12px;}</style>
+
+    <style>
+        ul {
+            counter-reset: li;
+            list-style: none;
+            padding: 0;
+            text-shadow: 0 1px 0 rgba(173, 173, 173, 0.5);
+            margin-block-end: 0em;
+        }
+
+        ul a {
+            position: relative;
+            display: block;
+            color: #6e6d6d;
+            text-decoration: none;
+            transition: all .3s ease-out;
+        }
+
+        h3{
+            margin-block-end: 0em;
+        }
+        h4{
+            color: #6e6d6d;
+        }
+    </style>
+
+    <!--vue and element js-->
+    <!--NOTE: vue.js should be imported before element.js-->
+    <script src="../../../static/js/vue.js" type="text/javascript" charset="utf-8"></script>
+
+    <!--axios-->
+    <script src="../../../static/js/axios.js" type="text/javascript" charset="utf-8"></script>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+
+<body>
+
+<div id="app">
+    <div align="center" style="padding-top: 30px">
+        <h3 v-text="'知识图谱 - ' + company.name"></h3>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="../../../static/js/config/encap.js"></script>
+<script>
+    let company = JSON.parse('{{company|safe}}');
+    let name = company.name === "百威亞太" || company.name === "百威亚太"? "百威": company.name.replace("控股", "").replace("股份", "");
+
+    if (name.includes("－")) {
+        name = name.split("－")[0];
+    }
+
+    var resp = _xhr("get", "/knowledge/" + name + "/");
+    var links = JSON.parse(resp.response).data;
+
+    if (links === null || links.length === 0) {
+        links = [];
+        links.push({"source": company.name, "target": "no data", "rela": "", "type": "resolved"});
+    }
+
+    console.log(links);
+
+    var nodes = {};
+
+    links.forEach(function(link) {
+        link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
+        link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+    });
+
+    // var width = 1920, height = 1080;
+    var width=960, height=600;
+
+    var force = d3.layout.force()
+        .nodes(d3.values(nodes))
+        .links(links)
+        .size([width, height])
+        .linkDistance(180)
+        .charge(-1500)
+        .on("tick", tick)
+        .start();
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    var marker=
+        svg.append("marker")
+        .attr("id", "resolved")
+        .attr("markerUnits","userSpaceOnUse")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX",32)
+        .attr("refY", -1)
+        .attr("markerWidth", 12)
+        .attr("markerHeight", 12)
+        .attr("orient", "auto")
+        .attr("stroke-width",2)
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr('fill','#000000');
+
+    var edges_line = svg.selectAll(".edgepath")
+        .data(force.links())
+        .enter()
+        .append("path")
+        .attr({
+            'd': function(d) {return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y},
+            'class':'edgepath',
+            'id':function(d,i) {return 'edgepath'+i;}})
+        .style("stroke",function(d){
+            var lineColor;
+            lineColor="#B43232";
+            return lineColor;
+        })
+        .style("pointer-events", "none")
+        .style("stroke-width",0.5)
+        .attr("marker-end", "url(#resolved)" );
+
+    var edges_text = svg.append("g").selectAll(".edgelabel")
+        .data(force.links())
+        .enter()
+        .append("text")
+        .style("pointer-events", "none")
+        .attr({  'class':'edgelabel',
+            'id':function(d,i){return 'edgepath'+i;},
+            'dx':80,
+            'dy':0
+        });
+
+    edges_text.append('textPath')
+        .attr('xlink:href',function(d,i) {return '#edgepath'+i})
+        .style("pointer-events", "none")
+        .text(function(d){return d.rela;});
+
+    var circle = svg.append("g").selectAll("circle")
+        .data(force.nodes())
+        .enter().append("circle")
+        .style("fill",function(node){
+            var color;
+            var link=links[node.index];
+            color="#F9EBF9";
+            return color;
+        })
+        .style('stroke',function(node){
+            var color;
+            var link=links[node.index];
+            color="#A254A2";
+            return color;
+        })
+        .attr("r", 28)
+        .on("click",function(node)
+        {
+            edges_line.style("stroke-width",function(line){
+                // console.log(line);
+                if(line.source.name==node.name || line.target.name==node.name){
+                    return 4;
+                } else{
+                    return 0.5;
+                }
+            });
+        })
+        .call(force.drag);
+
+    var text = svg.append("g").selectAll("text")
+        .data(force.nodes())
+        .enter()
+        .append("text")
+        .attr("dy", ".35em")
+        .attr("text-anchor", "middle")
+        .style('fill',function(node){
+            var color;
+            var link=links[node.index];
+            color="#A254A2";
+            return color;
+        }).attr('x',function(d){
+            var re_en = /[a-zA-Z]+/g;
+            if(d.name.match(re_en)) {
+                d3.select(this).append('tspan')
+                    .attr('x',0)
+                    .attr('y',2)
+                    .text(function(){return d.name;});
+            } else if(d.name.length<=4){
+                d3.select(this).append('tspan')
+                    .attr('x',0)
+                    .attr('y',2)
+                    .text(function(){return d.name;});
+            } else {
+                var top=d.name.substring(0,4);
+                var bot=d.name.substring(4,d.name.length);
+
+                d3.select(this).text(function(){return '';});
+
+                d3.select(this).append('tspan')
+                    .attr('x',0)
+                    .attr('y',-7)
+                    .text(function(){return top;});
+
+                d3.select(this).append('tspan')
+                    .attr('x',0)
+                    .attr('y',10)
+                    .text(function(){return bot;});
+            }
+        });
+
+    function tick() {
+        circle.attr("transform", transform1);
+        text.attr("transform", transform2);
+
+        edges_line.attr('d', function(d) {
+            return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y;
+        });
+
+        edges_text.attr('transform',function(d,i){
+            if (d.target.x<d.source.x){
+                bbox = this.getBBox();
+                rx = bbox.x+bbox.width/2;
+                ry = bbox.y+bbox.height/2;
+                return 'rotate(180 '+rx+' '+ry+')';
+            } else {
+                return 'rotate(0)';
+            }
+        });
+    }
+
+    function linkArc(d) {
+        return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y
+    }
+
+    function transform1(d) {
+        return "translate(" + d.x + "," + d.y + ")";
+    }
+
+    function transform2(d) {
+        return "translate(" + (d.x) + "," + d.y + ")";
+    }
+</script>
+
+<div id = "container">
+    <div id="main" style="width:650px; height: 700px; display: inline-block"></div>
+    <div id="subsector" style="visibility: hidden; display: inline-block; padding-top: 100px; vertical-align: top; width: 450px">
+        <div id="relation"></div>
+        <div id="newsBlock">
+            <h3>相关新闻</h3>
+            <ul><div id="news" style="height:150px; overflow:auto"></div></ul>
+        </div>
+        <br>
+        <div id="graph" style="width: 350px; height:400px; display:inline-block;" ></div>
+    </div>
+</div>
+<script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+<script type="text/javascript">
+    require.config({
+        paths: {
+            echarts: 'http://echarts.baidu.com/build/dist'
+        }
+    });
+    require(["echarts", "echarts/chart/force"], function(ec) {
+        var myChart = ec.init(document.getElementById('main'), 'macarons');
+        var option = {
+            tooltip: {
+                show: false
+            },
+            series: [{
+                type: 'force',
+                name: "Force tree",
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: true
+                        },
+                        nodeStyle: {
+                            brushType: 'both',
+                            borderColor: 'rgba(0,215,0,0.4)',
+                            borderWidth: 1
+                        }
+                    }
+                },
+                categories: [{
+                    name: '公司名称'
+                }, {
+                    name: 'esg分类'
+                }, {
+                    name: '分类'
+                }, {
+                    name: '评分'
+                }],
+                nodes: [{
+                    id: 0,
+                    category: 0,
+                    name: '0',
+                    label: '青岛啤酒\n52',
+                    symbolSize: 60,
+                    ignore: false,
+                    flag: true
+                }, {
+                    id: 1,
+                    category: 1,
+                    name: '1',
+                    label: '环境',
+                    symbolSize: 40,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 2,
+                    category: 2,
+                    name: '2',
+                    label: '资源使用',
+                    score: [64, 57.35, 37.36],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 3,
+                    category: 2,
+                    name: '3',
+                    label: '排放',
+                    score: [86, 57.87, 42.47],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 4,
+                    category: 2,
+                    name: '4',
+                    label: '水污染',
+                    score: [50.9, 46.05],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 5,
+                    category: 3,
+                    name: '5',
+                    label: '64',
+                    number: 52,
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 6,
+                    category: 3,
+                    name: '6',
+                    label: '86',
+                    number: 52,
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                },  {
+                    id: 7,
+                    category: 3,
+                    name: '7',
+                    label: '46.05',
+                    number: 52,
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                },  {
+                    id: 8,
+                    category: 1,
+                    name: '8',
+                    label: '社会责任',
+                    symbolSize: 40,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 9,
+                    category: 2,
+                    name: '9',
+                    label: '全体员工',
+                    score: [95, 96.90, 64.50],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 10,
+                    category: 2,
+                    name: '10',
+                    label: '人权',
+                    score: [10, 9.09, 9.09],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 11,
+                    category: 2,
+                    name: '11',
+                    label: '社区',
+                    score: [23, 27.88, 30.50],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 12,
+                    category: 2,
+                    name: '12',
+                    label: '产品责任',
+                    score: [23, 26.89, 26.63],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 13,
+                    category: 3,
+                    name: '13',
+                    label: '95',
+                    number: 45,
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 14,
+                    category: 3,
+                    name: '14',
+                    label: '10',
+                    number: 52,
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 15,
+                    category: 3,
+                    name: '15',
+                    label: '23',
+                    number: 52,
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 16,
+                    category: 3,
+                    name: '16',
+                    label: '23',
+                    number: 52,
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 17,
+                    category: 1,
+                    name: '17',
+                    label: '公司治理',
+                    number: 52,
+                    symbolSize: 40,
+                    ignore: true,
+                    flag: true
+                },{
+                    id: 18,
+                    category: 2,
+                    name: '18',
+                    label: '管理',
+                    score: [66, 78.02, 81.11],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                },{
+                    id: 19,
+                    category: 2,
+                    name: '19',
+                    label: '股东',
+                    score: [74, 76.70, 29.69],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                },{
+                    id: 20,
+                    category: 2,
+                    name: '20',
+                    label: 'CSR战略',
+                    score: [65, 72.51, 63.13],
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                },{
+                    id: 21,
+                    category: 3,
+                    name: '21',
+                    label: '66',
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                },{
+                    id: 22,
+                    category: 3,
+                    name: '22',
+                    label: '74',
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                },{
+                    id: 23,
+                    category: 3,
+                    name: '23',
+                    label: '65',
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 24,
+                    category: 1,
+                    name: '24',
+                    label: '财务指标',
+                    number: 52,
+                    symbolSize: 40,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 25,
+                    category: 2,
+                    name: '25',
+                    label: '托宾Q指标',
+                    number: 52,
+                    FI: true,
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                }, {
+                    id: 26,
+                    category: 2,
+                    name: '26',
+                    label: '债务率',
+                    FI: true,
+                    number: 52,
+                    symbolSize: 30,
+                    ignore: true,
+                    flag: true
+                },{
+                    id: 27,
+                    category: 3,
+                    name: '27',
+                    label: '2.97',
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                },{
+                    id: 28,
+                    category: 3,
+                    name: '28',
+                    label: '0.52',
+                    symbolSize: 20,
+                    ignore: true,
+                    flag: true
+                },],
+                links: [{
+                    source: 1,
+                    target: 0
+                },  {
+                    source: 8,
+                    target: 0
+                }, {
+                    source: 2,
+                    target: 1
+                }, {
+                    source: 3,
+                    target: 1
+                }, {
+                    source: 4,
+                    target: 1
+                }, {
+                    source: 5,
+                    target: 2
+                }, {
+                    source: 6,
+                    target: 3
+                }, {
+                    source: 7,
+                    target: 4
+                },{
+                    source: 9,
+                    target: 8
+                },  {
+                    source: 10,
+                    target: 8
+                }, {
+                    source: 11,
+                    target: 8
+                }, {
+                    source: 12,
+                    target: 8
+                }, {
+                    source: 13,
+                    target: 9
+                }, {
+                    source: 14,
+                    target: 10
+                }, {
+                    source: 15,
+                    target: 11
+                }, {
+                    source: 16,
+                    target: 12
+                }, {
+                    source: 17,
+                    target: 0
+                }, {
+                    source: 18,
+                    target: 17
+                },  {
+                    source: 19,
+                    target: 17
+                },  {
+                    source: 20,
+                    target: 17
+                }, {
+                    source: 21,
+                    target: 18
+                }, {
+                    source: 22,
+                    target: 19
+                }, {
+                    source: 23,
+                    target: 20
+                },{
+                    source: 24,
+                    target: 0
+                },{
+                    source: 25,
+                    target: 24
+                },{
+                    source: 26,
+                    target: 24
+                },{
+                    source: 27,
+                    target: 25
+                },{
+                    source: 28,
+                    target: 26
+                },]
+            }]
+        };
+        myChart.setOption(option);
+        var ecConfig = require('echarts/config');
+        function openOrFold(param) {
+            var option = myChart.getOption();
+            var nodesOption = option.series[0].nodes;
+            var linksOption = option.series[0].links;
+            var data = param.data;
+            var linksNodes = [];
+
+            var categoryLength = option.series[0].categories.length;
+
+            if (data != null && data != undefined) {
+                if (data.flag) {
+                    for (var m in linksOption) {
+                        if (linksOption[m].target == data.id) {
+                            linksNodes.push(linksOption[m].source);
+                        }
+                    }
+                    if (linksNodes != null && linksNodes != undefined) {
+                        for (var p in linksNodes) {
+                            nodesOption[linksNodes[p]].ignore = false;
+                            nodesOption[linksNodes[p]].flag = true;
+                        }
+                    }
+                    nodesOption[data.id].flag = false;
+                    myChart.setOption(option);
+                } else {
+                    for (var m in linksOption) {
+                        if (linksOption[m].target == data.id) {
+                            linksNodes.push(linksOption[m].source);
+                        }
+                        if (linksNodes != null && linksNodes != undefined) {
+                            for (var n in linksNodes) {
+                                if (linksOption[m].target == linksNodes[n]) {
+                                    linksNodes.push(linksOption[m].source);
+                                }
+                            }
+                        }
+                    }
+                    if (linksNodes != null && linksNodes != undefined) {
+                        for (var p in linksNodes) {
+                            nodesOption[linksNodes[p]].ignore = true;
+                            nodesOption[linksNodes[p]].flag = true;
+                        }
+                    }
+                    nodesOption[data.id].flag = true;
+                    myChart.setOption(option);
+                }
+            }
+        }
+        myChart.on(ecConfig.EVENT.CLICK, openOrFold);
+        myChart.on('click', function(param) {
+            var subsector = document.getElementById('subsector')
+            var relation = document.getElementById('relation')
+            var news = document.getElementById('news')
+            var block = document.getElementById('newsBlock')
+            var nodes = [{
+                    label: '资源使用',
+                    tobinQ: 0.99,
+                    debit: 0.49,
+                    news: []
+                    },{
+                        label: '排放',
+                        tobinQ: 0.97,
+                        debit: 0.18,
+                        news: [{
+                            title:'青岛啤酒随州公司与随州市污水处理厂签订生产废水间接排放限值合作协议',
+                            link:'https://news.qcc.com/postnews/3c5704cb571ff2b24d37525239a34c83.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'因排放管控要求调整，企业给生态环境部门送来了感谢信？',
+                            link:'https://news.qcc.com/postnews/2426de9a953952aca90eae66e46658b4.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        }]
+                    },{
+                        label: '水污染',
+                        tobinQ: 0.55,
+                        debit: 0.43,
+                        news: [{
+                             title:'ESG行业观察 | A股酒水饮料业ESG相关报告披露率达57.14%，龙头公司提“水足迹”管理',
+                            link:'https://www.nbd.com.cn/articles/2023-06-04/2855713.html'
+                        },
+                        {
+                            title:'酒水饮料业ESG报告披露率57.14% A股龙头公司提“水足迹”管理',
+                            link:'https://www.sohu.com/a/682060322_115362?scm=1102.xchannel:1493:110036.0.1.0~9010.8000.0.0.73&spm=smpc.channel_258.block37_93_zgyDGr_1_fd.1.1685836800010DA5oXoZ_1090'
+                        },
+                        {
+                            title:'“这杯青岛啤酒 ，装满你的故事” 青岛啤酒香飘120载，邀您分享难忘举杯时刻！',
+                            link:'https://www.chinanews.com.cn/cj/2023/05-26/10014192.shtml'
+                        }]
+                    },{
+                        label: '全体员工',
+                        tobinQ: 0.97,
+                        debit: 0.21,
+                        news: []
+                    },{
+                        label: '人权',
+                        tobinQ: 0.64,
+                        debit: 0.97,
+                        news: []
+                    },{
+                        label: '产品责任',
+                        tobinQ: 0.60,
+                        debit: 0.98,
+                        news: []
+                    },{
+                        label: '社区',
+                        tobinQ: 0.87,
+                        debit: 0.82,
+                        news: [{
+                            title:'青岛啤酒又一1903社区客厅落成',
+                            link:'https://news.qcc.com/postnews/50154c43912f4eab4c7483681a07dddc.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'连江首家TSINGTAO1903社区客厅开业',
+                            link:'https://news.qcc.com/postnews/89d4314fd4afb6ab3280a751161da711.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'新潮传媒实力上榜“中国品牌500强”，社区梯媒价值备受肯定',
+                            link:'https://news.qcc.com/postnews/cb301a658046ac047165bf47b8211312.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'渭南首家青岛啤酒TSINGTAO1903社区客厅盛大开业',
+                            link:'https://news.qcc.com/postnews/e2ef6cd2d955a495804f8ed7353f5651.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'兴业金帝物业携手青啤暨“百万社区大酬宾”日照万达品鉴会盛大启幕',
+                            link:'https://news.qcc.com/postnews/bb4c22964a130f8374f6f0457e8022cd.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },]
+                    },{
+                        label: '管理',
+                        tobinQ: 0.77,
+                        debit: 0.91,
+                        news: [{
+                            title:'A股酒水饮料业ESG相关报告披露率达57.14%，龙头公司提“水足迹”管理',
+                            link:'https://news.qcc.com/postnews/2fa094e3f9a07374867fea4caeb1570b.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'新中大业主投资项目管理解决方案，获评“2022软件和信息技术服务年度解决方案”金i奖',
+                            link:'https://news.qcc.com/postnews/06f5ac5a444784503a08402a7e853213.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'青岛啤酒：以MRO商城创新采购管理模式',
+                            link:'https://news.qcc.com/postnews/a80d06f3bb3693686807d79954db51a8.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'青岛啤酒高级管理人员张瑞祥减持2.25万股 套现235万 2022年前三季度公司净利42.67亿',
+                            link:'https://news.qcc.com/postnews/e9bbe893a97a8a108fcd9cce82adfaf9.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'营口市西市区市场监督管理局关于食品安全抽检信息的通告（2022年第1期）',
+                            link:'https://news.qcc.com/postnews/14ab39f29d993af36e9c3a081416a15e.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        }]
+                    },{
+                        label: '股东',
+                        tobinQ: 0.97,
+                        debit: 0.21,
+                        news: [{
+                            title:'青岛啤酒将于6月16日召开股东大会',
+                            link:'https://news.qcc.com/postnews/e20222fc6c49f4492fbc812c2f60c523.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'青岛啤酒（截止2023年3月31日）股东人数为25912户，环比减少3.00%',
+                            link:'https://news.qcc.com/postnews/09bdb15f97958d6066b4027c38a3b993.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'青岛啤酒（截止2023年2月28日）股东人数为26714户，环比增加2.69%',
+                            link:'https://news.qcc.com/postnews/38a7c85333d41a4faab5754bc229cc4b.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'复星系股东质押豫园股份1600万股，用于还债！',
+                            link:'https://news.qcc.com/postnews/5747048f686c270684cba51e6f66dbc8.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'郭广昌继续卖卖卖！复星系股东连续大手笔减持酷特智能',
+                            link:'https://news.qcc.com/postnews/04fa5a8a61c48c01ed54abdb5d81be77.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        }]
+                    },{
+                        label: 'CSR战略',
+                        tobinQ: 0.51,
+                        debit: 0.56,
+                        news: [{
+                            title:'华润、贵州茅台、青岛啤酒3家涉酒企业入选社会责任蓝皮书',
+                            link:'https://news.qcc.com/postnews/225c2f563c9bc9f1f9f3c670b337aa95.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'第十七届人民企业社会责任奖拟获奖名单公示',
+                            link:'https://news.qcc.com/postnews/72093a8a9680a837ff5876fa408bcc2c.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'青岛啤酒获2022企业ESG杰出社会责任实践案例',
+                            link:'https://news.qcc.com/postnews/9372082647c1f620721509d023d991a3.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'2021山东社会责任企业、企业家公布！滨州这些企业、企业家上榜',
+                            link:'https://news.qcc.com/postnews/3aa4799943c6d7411557b2eccfe991ea.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        },{
+                            title:'青岛啤酒：坚持做有责任感的企业公民丨社会责任报告',
+                            link:'https://news.qcc.com/postnews/ab8097cce607d41344565f2b27853001.html?uid=64a1a14d3502a1e089924e557fff8637'
+                        }]
+                    }]
+            if (param.data['category'] == '2' && param.data['FI'] == null && param.data['flag'] == true) {
+                subsector.style.visibility='visible'
+                dataList = []
+                for (var m of nodes){
+                    if (m['label']==param.data['label']){
+                        relation.innerHTML = '<h3>相关性</h3><h4>'+param.data['label']+'得分 ~ 托宾Q指标: '+m['tobinQ']+'<br>'+param.data['label']+'得分 ~ 债务率: '+m['debit']+'</h4>'
+                        news.innerHTML = ''
+                        if (m['news'].length > 0){
+                            for (var n of m['news']){
+                            news.innerHTML += "<li><a href='"+n['link']+"'>"+n['title']+"</a></li><hr>"
+                            }
+                            block.style.display='block'
+                        }else{
+                            block.style.display='none'
+                        }
+                        break
+                    }
+                }
+
+                require(["echarts", "echarts/chart/bar"], function(ec) {
+                    var myGraph = ec.init(document.getElementById('graph'));
+                    var graphOption = {
+                        title: {
+                            text: '历史趋势'
+                        },
+                        tooltip: {},
+                        legend: {
+                            data:['评分']
+                        },
+                        xAxis: {
+                            data: ['2022','2021', '2020']
+                        },
+                        yAxis: {},
+                        series: [{
+                            name: '评分',
+                            type: 'bar',
+                            data: param.data['score']
+                        }]
+                    };
+                    myGraph.setOption(graphOption);
+                });
+            }
+            else if(param.data['category'] != '2'||(param.data['category'] == '2' && param.data['FI'] == null && param.data['flag'] == false)){
+                subsector.style.visibility='hidden'
+            }
+        });
+    });
+</script>
+
+</body>
+
+<script>
+    const vue = new Vue({
+        el: "#app",
+        data() {
+            return {
+                company: {},
+            }
+        },
+        methods: {
+            getCompany() {
+                let _company = JSON.parse('{{company|safe}}');
+                if (_company !== null) {
+                    this.company = _company;
+                    console.log(this.company);
+                } else {
+                    this.$message.info("no company data parsed");
+                }
+            }
+        },
+        mounted() {
+            this.getCompany();
+        }
+    })
+</script>
+
+</html>
