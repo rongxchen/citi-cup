@@ -18,7 +18,7 @@ TOKEN = ""
 def from_a(stock_code: str, exchange: str):
     url = "http://api.tushare.pro"
     _exchange = "SZ" if exchange == "SZSE" else ("SH" if exchange == "SSE" else None)
-
+    
     if not _exchange:
         return None
 
@@ -36,7 +36,7 @@ def from_a(stock_code: str, exchange: str):
         resp = requests.post(url=url, headers=headers, json=data, proxies=get_random_proxy())
         return resp.json()["data"]["items"][0]["industry"]
     except Exception as e:
-        print(e)
+        print(f"exception: {e}")
 
 
 def from_hk(stock_code: str, exchange: str):
