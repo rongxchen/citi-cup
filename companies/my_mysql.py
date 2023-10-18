@@ -2,7 +2,7 @@ import MySQLdb
 import base64
 
 
-password = base64.b64decode("MjAwMjAxMDJDcng=").decode()
+password = ""
 
 class use_of_proceed:
     def __init__(self):

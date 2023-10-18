@@ -4,8 +4,7 @@ import json
 from web_crawler.chatgpt.FinBERT import *
 
 
-# api_key = "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"
-api_key = "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"
+api_key = ""
 
 headers = {
     "Authorization": f"Bearer {api_key}",
